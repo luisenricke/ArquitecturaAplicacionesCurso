@@ -28,4 +28,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/btnEntrar"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:ems="10"
+        android:id="@+id/txtRocket"
+        android:hint="Rocket"/>
+    <Button
+        android:text="Buscar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnBuscar"/>
 </LinearLayout>

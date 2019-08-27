@@ -12,4 +12,7 @@ public interface SpaceXAPI {
 
     @GET("rockets")
     Call<List<Rocket>> getAllRockets();
+
+    @GET("rockets/{id_rocket}")
+    Call<Rocket> getOneRocketByID(@Path("id_rocket") String id_rocket);
 }

@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -37,6 +38,9 @@ public class LoginActivity extends AppCompatActivity implements LoginActivityMVP
     EditText firstName, lastName;
     Button loginButton;
 
+    EditText rocket;
+    Button search;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +51,9 @@ public class LoginActivity extends AppCompatActivity implements LoginActivityMVP
         firstName = findViewById(R.id.txtNombre);
         lastName = findViewById(R.id.txtApellido);
         loginButton = findViewById(R.id.btnEntrar);
+
+        rocket = findViewById(R.id.txtRocket);
+        search = findViewById(R.id.btnBuscar);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,7 +68,7 @@ public class LoginActivity extends AppCompatActivity implements LoginActivityMVP
             @Override
             public void onResponse(Call<List<Rocket>> call, Response<List<Rocket>> response) {
                 Iterator<Rocket> iterator = response.body().iterator();
-                while(iterator.hasNext()){
+                while (iterator.hasNext()) {
                     System.out.println(iterator.next().getRocketName());
                 }
             }
@@ -69,6 +76,31 @@ public class LoginActivity extends AppCompatActivity implements LoginActivityMVP
             @Override
             public void onFailure(Call<List<Rocket>> call, Throwable t) {
                 Log.e("Peticion", t.getMessage());
+            }
+        });
+
+        search.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Call<Rocket> call = spaceXAPI.getOneRocketByID(rocket.getText().toString());
+                call.enqueue(new Callback<Rocket>() {
+                    @Override
+                    public void onResponse(Call<Rocket> call, Response<Rocket> response) {
+
+                        if (response.code() == 404) {
+                            Log.e("Respuesta", "error");
+                            return;
+                        }
+
+                        System.out.println(response.body().getRocketName());
+                        System.out.println(response.body().getDescription());
+                    }
+
+                    @Override
+                    public void onFailure(Call<Rocket> call, Throwable t) {
+                        Log.e("Peticion", t.getMessage());
+                    }
+                });
             }
         });
     }
