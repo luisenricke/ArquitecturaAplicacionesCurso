@@ -2,27 +2,32 @@ package com.luisvillalobos.dev.daggerejemplointento2.login;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.luisvillalobos.dev.daggerejemplointento2.R;
 import com.luisvillalobos.dev.daggerejemplointento2.http.SpaceXAPI;
 import com.luisvillalobos.dev.daggerejemplointento2.http.spacex.rocket.Rocket;
 import com.luisvillalobos.dev.daggerejemplointento2.root.App;
 
-import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.inject.Inject;
 
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.Observer;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -38,7 +43,7 @@ public class LoginActivity extends AppCompatActivity implements LoginActivityMVP
     EditText firstName, lastName;
     Button loginButton;
 
-    EditText rocket;
+    EditText rocketE;
     Button search;
 
     @Override
@@ -52,7 +57,7 @@ public class LoginActivity extends AppCompatActivity implements LoginActivityMVP
         lastName = findViewById(R.id.txtApellido);
         loginButton = findViewById(R.id.btnEntrar);
 
-        rocket = findViewById(R.id.txtRocket);
+        rocketE = findViewById(R.id.txtRocket);
         search = findViewById(R.id.btnBuscar);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
@@ -63,7 +68,7 @@ public class LoginActivity extends AppCompatActivity implements LoginActivityMVP
         });
 
         //Ejemplo de uso de la api de SpaceX
-        Call<List<Rocket>> call = spaceXAPI.getAllRockets();
+        /*Call<List<Rocket>> call = spaceXAPI.getAllRockets();
         call.enqueue(new Callback<List<Rocket>>() {
             @Override
             public void onResponse(Call<List<Rocket>> call, Response<List<Rocket>> response) {
@@ -78,7 +83,8 @@ public class LoginActivity extends AppCompatActivity implements LoginActivityMVP
                 Log.e("Peticion", t.getMessage());
             }
         });
-
+        */
+        /*
         search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -101,6 +107,97 @@ public class LoginActivity extends AppCompatActivity implements LoginActivityMVP
                         Log.e("Peticion", t.getMessage());
                     }
                 });
+            }
+        });
+        */
+
+        spaceXAPI.getAllRocketsObservable().flatMap(new Function<List<Rocket>, Observable<Rocket>>() {
+            @Override
+            public Observable<Rocket> apply(List<Rocket> rockets) {
+                return Observable.fromIterable(rockets);
+            }
+        }).flatMap(new Function<Rocket, Observable<String>>() {
+            @Override
+            public Observable<String> apply(Rocket rocket) {
+                return Observable.just(rocket.getRocketName());
+            }
+        })
+                .subscribeOn(Schedulers.io())
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<String>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(String s) {
+                        System.out.println("RxJava: " + s);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+
+        rocketE.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                spaceXAPI.getAllRocketsObservable().flatMap(new Function<List<Rocket>, Observable<Rocket>>() {
+                    @Override
+                    public Observable<Rocket> apply(List<Rocket> rockets) {
+                        return Observable.fromIterable(rockets);
+                    }
+                }).flatMap(new Function<Rocket, Observable<String>>() {
+                    @Override
+                    public Observable<String> apply(Rocket rocket) {
+                        return Observable.just(rocket.getRocketName());
+                    }
+                }).filter(new Predicate<String>() {
+                    @Override
+                    public boolean test(String s) {
+                        return s.contains(rocketE.getText().toString());
+                    }
+                })
+                        .subscribeOn(Schedulers.io())
+                        .subscribeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Observer<String>() {
+                            @Override
+                            public void onSubscribe(Disposable d) {
+
+                            }
+
+                            @Override
+                            public void onNext(String s) {
+                                System.out.println("RxJava: " + s);
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                e.printStackTrace();
+                            }
+
+                            @Override
+                            public void onComplete() {
+
+                            }
+                        });
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
             }
         });
     }

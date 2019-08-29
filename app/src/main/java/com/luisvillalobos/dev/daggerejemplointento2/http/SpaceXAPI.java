@@ -4,6 +4,7 @@ import com.luisvillalobos.dev.daggerejemplointento2.http.spacex.rocket.Rocket;
 
 import java.util.List;
 
+import io.reactivex.Observable;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
@@ -15,4 +16,7 @@ public interface SpaceXAPI {
 
     @GET("rockets/{id_rocket}")
     Call<Rocket> getOneRocketByID(@Path("id_rocket") String id_rocket);
+
+    @GET("rockets")
+    Observable<List<Rocket>> getAllRocketsObservable();
 }
