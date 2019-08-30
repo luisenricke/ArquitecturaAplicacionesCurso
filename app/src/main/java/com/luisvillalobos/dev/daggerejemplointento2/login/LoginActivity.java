@@ -1,10 +1,9 @@
 package com.luisvillalobos.dev.daggerejemplointento2.login;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,18 +18,16 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import butterknife.BindString;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
-import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity implements LoginActivityMVP.View {
 
@@ -39,28 +36,44 @@ public class LoginActivity extends AppCompatActivity implements LoginActivityMVP
 
     @Inject
     SpaceXAPI spaceXAPI;
-
+/*
     EditText firstName, lastName;
     Button loginButton;
 
     EditText rocketE;
     Button search;
+    */
+
+    @BindView(R.id.txtNombre)
+    EditText txtNombre;
+    @BindView(R.id.txtApellido)
+    EditText txtApellido;
+    @BindView(R.id.btnEntrar)
+    Button btnEntrar;
+    @BindView(R.id.txtRocket)
+    EditText txtRocket;
+    @BindView(R.id.btnBuscar)
+    Button btnBuscar;
+
+    @BindString(R.string.app_name)
+    String app;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
         ((App) getApplication()).getComponent().inject(this);
-
+/*
         firstName = findViewById(R.id.txtNombre);
         lastName = findViewById(R.id.txtApellido);
         loginButton = findViewById(R.id.btnEntrar);
 
         rocketE = findViewById(R.id.txtRocket);
         search = findViewById(R.id.btnBuscar);
-
-        loginButton.setOnClickListener(new View.OnClickListener() {
+*/
+        btnBuscar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 presenter.loginButtonClicked();
@@ -146,7 +159,7 @@ public class LoginActivity extends AppCompatActivity implements LoginActivityMVP
                     }
                 });
 
-        rocketE.addTextChangedListener(new TextWatcher() {
+        txtRocket.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -167,7 +180,7 @@ public class LoginActivity extends AppCompatActivity implements LoginActivityMVP
                 }).filter(new Predicate<String>() {
                     @Override
                     public boolean test(String s) {
-                        return s.contains(rocketE.getText().toString());
+                        return s.contains(txtRocket.getText().toString());
                     }
                 })
                         .subscribeOn(Schedulers.io())
@@ -211,12 +224,12 @@ public class LoginActivity extends AppCompatActivity implements LoginActivityMVP
 
     @Override
     public String getFirstName() {
-        return firstName.getText().toString();
+        return txtNombre.getText().toString();
     }
 
     @Override
     public String getLastName() {
-        return lastName.getText().toString();
+        return txtApellido.getText().toString();
     }
 
     @Override
@@ -236,11 +249,11 @@ public class LoginActivity extends AppCompatActivity implements LoginActivityMVP
 
     @Override
     public void setFirstName(String firstName) {
-        this.firstName.setText(firstName);
+        this.txtNombre.setText(firstName);
     }
 
     @Override
     public void setLastName(String lastName) {
-        this.lastName.setText(lastName);
+        this.txtApellido.setText(lastName);
     }
 }
